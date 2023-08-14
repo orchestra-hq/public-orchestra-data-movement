@@ -4,12 +4,10 @@ from requests.adapters import HTTPAdapter, Retry
 import asyncio
 import aiohttp
 import httpx
-from services.utility.logger import Logger
 import os
 
 class HTTP:
     def __init__(self, base_url):
-        self.logger = Logger()
         self.base_url = base_url
         self.headers = None
 
@@ -63,7 +61,6 @@ class HTTP:
                 data=data,
             )
             log_message = f"{response.request.method} {response.request.url} - {response.status_code} {response.reason}"
-            self.logger.log.debug(log_message)
             if isinstance(response.json(), list):
                 return {
                     **{"data": response.json()},
@@ -81,43 +78,3 @@ class HTTP:
                 "reason": response.reason,
                 "error": "Internal error: " + str(error),
             }
-
-    async def form_requests_from_parameters(
-        self, parameters: dict, client: httpx.AsyncClient, base_url: str = None
-    ):
-        if not base_url:
-            client.base_url = self.base_url
-        else:
-            client.base_url = base_url
-        methods = parameters.get("method")
-        endpoints = parameters.get("endpoint")
-        params = parameters.get("params")
-        bodies = parameters.get("body")
-        headers = parameters.get("headers")
-        cookies = parameters.get("cookies")
-        auths = parameters.get("auth")
-        try:
-            response_data = await client.request(
-                method=methods,
-                url=endpoints,
-                params=params,
-                json=bodies,
-                headers=headers,
-                cookies=cookies,
-                auth=auths,
-            )
-            status = response_data.status_code
-            data = {"data": response_data.json(), "status": status, "reason": "OK"}
-        except ConnectionError as error:
-            data = {
-                "data": {"error_message": str(error)},
-                "status": 400,
-                "reason": "Connection exception",
-            }
-        except Exception as error:
-            data = {
-                "data": {"error_message": str(error)},
-                "status": 400,
-                "reason": "Generic exception",
-            }
-        return data

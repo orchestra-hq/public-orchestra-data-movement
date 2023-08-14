@@ -8,5 +8,5 @@ This makes sense because it reflects the nature of third-party APIs.
 
 For example, it's straightforward to use the Snowflake Python Connector to push data to snowflake (treating it like a "sink") using an insert statement. However, it's also straightforward to use the connector to pull data from snowflake.
 
-The same is true of third party SaaS tools outside the data sphere which are relevant to data teams, such as Salesforce.
+The same is true of third party SaaS tools outside the data sphere which are relevant to data teams, such as Hubspot.
 

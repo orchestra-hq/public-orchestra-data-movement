@@ -2,11 +2,7 @@ import pandas as pd
 
 
 class Helper:
-    secret_keys = []
-
     def __init__(self):
-        # kv = KeyVaultService("public-api")
-        # self.__secrets = kv.get_secrets(self.secret_keys)
         pass
 
     def flatten_list_of_list(self, list__: list):

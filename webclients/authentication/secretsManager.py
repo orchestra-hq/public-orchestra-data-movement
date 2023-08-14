@@ -1,14 +1,12 @@
 import boto3
 from botocore.config import Config
 import json
-from sqlalchemy.orm import Session
 from typing import Union
 
-from classes.core_models.BaseKeyVaultService import (
-    secretStatus,
+from classes.core_models.baseKeyVault import (
     KeyVaultServiceBase,
+    secretStatus
 )
-from services.utility.logger import Logger
 
 
 class AWSSecretsManagerService(KeyVaultServiceBase):
@@ -25,7 +23,7 @@ class AWSSecretsManagerService(KeyVaultServiceBase):
         )
         self.service_name = service_name
         self.region = region
-        super().__init__(key_vault_name, "aws")
+        super().__init__(key_vault_name)
         self.client = boto3.client(self.service_name, config=self.aws_config)
 
     def get_secret(self, secret_key: str) -> str:

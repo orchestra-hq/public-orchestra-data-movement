@@ -1,10 +1,8 @@
 import httpx
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from routers import publicapi
-from services.utility.logger import Logger
-from services.utility.http import HTTP
-from dependencies import get_client_raw
+from routers import api
+from webclients.utility.http import HTTP
 
 
 app = FastAPI()
@@ -18,8 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-logger = Logger()
-app.include_router(publicapi.router)
+app.include_router(api.router)
 
 
 @app.on_event("startup")
