@@ -75,7 +75,6 @@ class Snowflake:
             results = connection.cursor().execute(query)
             if not command:
                 data = results.fetchall()
-                print(data)
             error_message = None
             base_dict["messages"] = results.messages
             base_dict["rowcount"] = results.rowcount
@@ -151,7 +150,6 @@ class Snowflake:
     def create_snowflake_table(self, table_name: str, schema: dict):
         schema_string = ",".join([f"{key} {self.python_type_to_snowflake_type(str(type(key)))}" for key,value in schema.items()])
         query  = f"CREATE TABLE IF NOT EXISTS {table_name} ({schema_string})"
-        print(query)
         connection = self.return_connection()
         self.run_command(connection, query)
         return

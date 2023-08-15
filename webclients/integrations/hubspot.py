@@ -11,7 +11,6 @@ class Hubspot(HTTP):
         self.__secrets = kv.get_secrets(self.secret_keys)
         self.apikey = self.__secrets["hubspot-api-key"]
         self.base_url = 'https://api.hubspot.com'
-        print(self.apikey)
         super().__init__(self.base_url)
         self.add_default_headers({"Authorization": f"Bearer {self.apikey}"})
 
