@@ -1,0 +1,9 @@
+.env
+local.settings.json
+.idea
+*.idea
+/.idea
+*.pyc
+.pytest_cache
+test-output.xml
+test.py

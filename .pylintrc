@@ -1,0 +1,9 @@
+[pylint]
+disable = C0116, # disables missing function docstrings
+          C0115, # disables missing class docstrings
+          C0114 # disables missing module docstrings 
+          W1203 # Disable f strings??
+          W1201 # Disable f strings??
+
+[MASTER]
+extension-pkg-whitelist=pydantic
