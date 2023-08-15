@@ -20,7 +20,6 @@ def fetch_accounts(
     response: Response
 ):
     data = APImgmt.fetch_hubspot_contacts()
-    print(data)
     flattened_data = [APImgmt.flatten_hubspot_contacts(x) for x in data]
     return [HubspotContact.parse_obj(x) for x in flattened_data]
 
@@ -29,12 +28,9 @@ def snowflake_write( response: Response, writeData: SnowflakeWrite = Body()):
     overwrite = False
     if writeData.method == 'overwrite':
         overwrite = True
-    print("The important stuff")
-    print(writeData.table_name)
     df = pd.DataFrame([dict(x) for x in writeData.data])
     snowflake = Snowflake()
     staging_name = writeData.table_name + "_staging"
-    print("About to start wrangling")
     try:
         # Write a staging table
         output = snowflake.write_pandas_to_sf(df, staging_name, overwrite=overwrite)
@@ -67,16 +63,31 @@ def fetch_accounts_and_push_to_snowflake(
 @router.get("/snowflake/{tablename}", status_code=200)
 def fetch_snowflake_data(
     response: Response,
-    fetchDataSnowflake: fetchDataSnowflake = Body()
+    tablename:str,
+    fetchDataSnowflake: fetchDataSnowflake=Body()
 ):
+    col_string = ",".join(fetchDataSnowflake.columns)
     snowflake=Snowflake()
-    query = f"SELECT * FROM {fetchDataSnowflake.table_name}"
+    query = f"SELECT {col_string} FROM {tablename}"
     response.status_code = 200
-    return snowflake.run_query(query, False)
+    data = snowflake.run_query(query, False)
+    data['columns'] = fetchDataSnowflake.columns
+    data['data'] = [ dict(zip(data['columns'], item))  for item in data['data']  ]
+    return data
 
-@router.post("/hubspot/contacts/snowflake/{tablename}", status_code=200, response_model=list[HubspotContact])
+@router.post("/hubspot/contacts/", status_code=200)
 def push_hubspot_contacts(
     response: Response,
     HubspotContactPush: HubspotContactPush = Body()
 ):
-    data = fetch_snowflake_data(response, HubspotContactPush)
+    response = APImgmt.update_contacts(HubspotContactPush.data, HubspotContactPush.columns)
+
+@router.get("/snowflake/{tablename}/hubspot/contacts", status_code=200)
+def pull_contacts_and_push(
+    response: Response,
+    tablename:str,
+    fetchDataSnowflake: fetchDataSnowflake=Body()
+):
+    data = fetch_snowflake_data( response, tablename, fetchDataSnowflake)
+    hubspot_contacts = HubspotContactPush.parse_obj({"data":data["data"] , "fields":fetchDataSnowflake.columns})
+    return push_hubspot_contacts(response, hubspot_contacts)

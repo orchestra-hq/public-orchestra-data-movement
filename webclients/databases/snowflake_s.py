@@ -75,6 +75,7 @@ class Snowflake:
             results = connection.cursor().execute(query)
             if not command:
                 data = results.fetchall()
+                print(data)
             error_message = None
             base_dict["messages"] = results.messages
             base_dict["rowcount"] = results.rowcount
@@ -91,7 +92,8 @@ class Snowflake:
 
         status = connection.get_query_status(base_dict["sfqid"]).name
         return {
-            "data": {**data, **{"metdata": base_dict}},
+            "data": data,
+            "metdata": base_dict,
             "status": status,
             "reason": status,
             "status_code": status_code,

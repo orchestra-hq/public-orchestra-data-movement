@@ -42,10 +42,9 @@ class HubspotContactSnowflakeWrite(SnowflakeWrite):
     pass
 
 class fetchDataSnowflake(BaseModel):
-    table_name: str
     limit: Union[None, int]
-    filters: Union[None, dict]
+    columns: list
 
 class HubspotContactPush(fetchDataSnowflake):
-    vid: int
-    fields: dict
+    data: list
+    fields: list
