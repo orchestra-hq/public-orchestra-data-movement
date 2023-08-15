@@ -174,7 +174,6 @@ class Snowflake:
                     WHEN NOT MATCHED THEN 
                     INSERT ({col_list})     VALUES ({source_string})"""
 
-        print(query)
         connection = self.return_connection()
         self.run_command(connection, query)
         return 
