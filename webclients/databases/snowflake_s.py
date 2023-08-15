@@ -132,9 +132,24 @@ class Snowflake:
             account=__secrets["snowflake-account"],
         )
 
+    def python_type_to_snowflake_type(self, py_type):
+        snowflake_types = {
+            'int': 'NUMBER',
+            'float': 'FLOAT',
+            'str': 'STRING',
+            'bool': 'BOOLEAN',
+            'datetime.datetime': 'TIMESTAMP',
+            'datetime.date': 'DATE',
+            'NoneType': 'VARIANT'
+            # Add more type mappings as needed
+        }
+        
+        return snowflake_types.get(py_type, 'STRING')
+
     def create_snowflake_table(self, table_name: str, schema: dict):
-        schema_string = [f"{key} {value}" for key,value in schema.items()].join(",")
-        query  = f"CREATE OR REPLACE TABLE IF NOT EXISTS {table_name} ({schema_string})"
+        schema_string = ",".join([f"{key} {self.python_type_to_snowflake_type(str(type(key)))}" for key,value in schema.items()])
+        query  = f"CREATE TABLE IF NOT EXISTS {table_name} ({schema_string})"
+        print(query)
         connection = self.return_connection()
         self.run_command(connection, query)
         return
@@ -147,11 +162,10 @@ class Snowflake:
 
     def upsert_data(self, target:str, source:str, primary_key:str, schema__: dict):
         columns = [key for key,value in schema__.items()]
-        columns.append(primary_key)
-        col_string = [f"{x} as {x} "for x in columns].join(",")
-        target_string = [f"target.{x} = source.{x}" for x in columns].join(",")
-        source_string = [f"source.{x}" for x in columns].join(",")
-        col_list = columns.join(",")
+        col_string =",".join( [f"{x} as {x} "for x in columns])
+        target_string = ",".join( [f"target.{x} = source.{x}" for x in columns])
+        source_string = ",".join( [f"source.{x}" for x in columns])
+        col_list = ",".join( columns)
         query = f"""MERGE INTO {target} AS target USING (
                     SELECT {col_string} FROM {source} ) AS source
                     ON target.{primary_key} = source.{primary_key}
@@ -159,6 +173,8 @@ class Snowflake:
                     {target_string}
                     WHEN NOT MATCHED THEN 
                     INSERT ({col_list})     VALUES ({source_string})"""
+
+        print(query)
         connection = self.return_connection()
         self.run_command(connection, query)
         return 
@@ -168,13 +184,13 @@ class Snowflake:
             user=self.__secrets["snowflake-db-user"],
             password=self.__secrets["snowflake-db-password"],
             database=self.__secrets["snowflake-database"],
-            schema=self.__secrets["snowflake-db-schema"],
+            schema=self.__secrets["snowflake-schema"],
             warehouse=self.__secrets["snowflake-warehouse"],
             account=self.__secrets["snowflake-account"],
         )
 
         try:
-            pdtools.write_pandas(table_name=table_name, conn=con_, df=df_, overwrite=overwrite)
+            pdtools.write_pandas(table_name=table_name, conn=con_, df=df_, overwrite=overwrite, quote_identifiers=False)
         except Exception as e:
             print(e)
 

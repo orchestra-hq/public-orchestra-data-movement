@@ -16,8 +16,7 @@ class APIManagement():
             "portal_id": data['portal-id'],
             "addedAt": data['addedAt'],
             "is_contact": data['is-contact'],
-            "firstname": data['properties']['value'],
-            "lastmodifieddate": data['properties']['lastmodifieddate'],
-            "company": data['properties']['company'],
-            "lastname": data['properties']['lastname']}
+            "firstname": data['properties']['firstname']['value'],
+            "lastmodifieddate": data['properties']['lastmodifieddate']['value']
+            }
            

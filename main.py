@@ -1,7 +1,7 @@
 import httpx
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from routers import api
+from routers.api import api
 from webclients.utility.http import HTTP
 
 

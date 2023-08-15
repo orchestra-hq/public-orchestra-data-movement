@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, Extra
 from typing import Union, Literal
 
 class fetchDataoBject(BaseModel):
@@ -22,24 +22,30 @@ class HubspotContact(HubspotReturnObject):
     is_contact: str
     firstname: str
     lastmodifieddate: int
-    company: str
-    lastname: str
+    company: Union[str, None] = Field(default=None)
+    lastname: Union[str, None] = Field(default=None)
 
-class HubspotContactPush(fetchDataSnowflake):
-    vid: int
-    fields: dict
+
 
 class SnowflakeWrite(BaseModel):
     table_name: str
-    schema: Union[dict, None]  =Field(default=None)
+    schema__: Union[dict, None]  =Field(default=None, alias='schema')
     method: Literal["overwrite", "upsert"]
     data: Union[list, None] = Field(default = None)
     primary_key: str
+    class Config:
+        extra = Extra.allow
 
-class HubspotContactSnowflakeWrite(HubspotContact, SnowflakeWrite):
+class HubspotContactSnowflakeWrite(SnowflakeWrite):
+    data: list
+    schema__: dict = Field(alias ='schema')
     pass
 
 class fetchDataSnowflake(BaseModel):
     table_name: str
     limit: Union[None, int]
     filters: Union[None, dict]
+
+class HubspotContactPush(fetchDataSnowflake):
+    vid: int
+    fields: dict
