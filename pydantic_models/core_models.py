@@ -47,4 +47,3 @@ class fetchDataSnowflake(BaseModel):
 
 class HubspotContactPush(fetchDataSnowflake):
     data: list
-    fields: list

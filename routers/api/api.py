@@ -81,7 +81,8 @@ def push_hubspot_contacts(
     HubspotContactPush: HubspotContactPush = Body()
 ):
     response = APImgmt.update_contacts(HubspotContactPush.data, HubspotContactPush.columns)
-
+    return response 
+    
 @router.get("/snowflake/{tablename}/hubspot/contacts", status_code=200)
 def pull_contacts_and_push(
     response: Response,
@@ -89,5 +90,5 @@ def pull_contacts_and_push(
     fetchDataSnowflake: fetchDataSnowflake=Body()
 ):
     data = fetch_snowflake_data( response, tablename, fetchDataSnowflake)
-    hubspot_contacts = HubspotContactPush.parse_obj({"data":data["data"] , "fields":fetchDataSnowflake.columns})
+    hubspot_contacts = HubspotContactPush.parse_obj({"data":data["data"] , "columns":fetchDataSnowflake.columns})
     return push_hubspot_contacts(response, hubspot_contacts)

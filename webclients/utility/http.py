@@ -61,6 +61,7 @@ class HTTP:
                 data=data,
             )
             log_message = f"{response.request.method} {response.request.url} - {response.status_code} {response.reason}"
+            print(log_message)
             if isinstance(response.json(), list):
                 return {
                     **{"data": response.json()},

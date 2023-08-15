@@ -11,7 +11,7 @@ class APIManagement():
 
     def update_contacts(self, json_list, fields_to_update):
         hubspot_client = Hubspot()
-        return hubspot_client.update_contacts(json_list, fields_to_update)
+        return hubspot_client.update_contacts(json_list, [x for x in fields_to_update if x != 'vid'])
 
     def flatten_hubspot_contacts(self, data:dict):
         return {
